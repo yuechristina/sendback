@@ -1,0 +1,62 @@
+[
+  {
+    "merchant": "Amazon",
+    "text": "Most items within 30 days of delivery; visit Your Orders to start a return.",
+    "window_days": 30,
+    "in_store_allowed": false,
+    "mail_allowed": true,
+    "restocking_fee_pct": 0,
+    "return_bar_supported": true,
+    "requires_rma": false
+  },
+  {
+    "merchant": "Target",
+    "text": "Most new, unopened items returned within 90 days; receipt required; some categories shorter.",
+    "window_days": 90,
+    "in_store_allowed": true,
+    "mail_allowed": true,
+    "restocking_fee_pct": 0,
+    "return_bar_supported": false,
+    "requires_rma": false
+  },
+  {
+    "merchant": "Best Buy",
+    "text": "Most products 15 days; 30/45 for members; restocking fees for some items.",
+    "window_days": 15,
+    "in_store_allowed": true,
+    "mail_allowed": true,
+    "restocking_fee_pct": 15,
+    "return_bar_supported": false,
+    "requires_rma": true
+  },
+  {
+    "merchant": "Nike",
+    "text": "30-day returns; mail or store; exclusions apply.",
+    "window_days": 30,
+    "in_store_allowed": true,
+    "mail_allowed": true,
+    "restocking_fee_pct": 0,
+    "return_bar_supported": false,
+    "requires_rma": false
+  },
+  {
+    "merchant": "Zara",
+    "text": "30 days from shipping date; in-store returns accepted for online purchases.",
+    "window_days": 30,
+    "in_store_allowed": true,
+    "mail_allowed": true,
+    "restocking_fee_pct": 0,
+    "return_bar_supported": false,
+    "requires_rma": false
+  },
+  {
+    "merchant": "Sephora",
+    "text": "30 days for refund, 60 for store credit; in-store or mail.",
+    "window_days": 30,
+    "in_store_allowed": true,
+    "mail_allowed": true,
+    "restocking_fee_pct": 0,
+    "return_bar_supported": true,
+    "requires_rma": false
+  }
+]

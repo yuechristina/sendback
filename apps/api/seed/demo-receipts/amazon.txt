@@ -1,0 +1,6 @@
+Merchant: Amazon
+Order: 113-1234567-1234567
+Date: 2025-10-10
+Items:
+- Portable Blender x1 $29.99
+- USB-C Cable x2 $9.99
