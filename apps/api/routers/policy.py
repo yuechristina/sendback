@@ -7,15 +7,17 @@ router = APIRouter()
 
 @router.get("/policy")
 def policy(merchant: str, text: str | None = None):
+    # If we have an Anthropic key, call the LLM summarizer for live parsing.
     if os.getenv("ANTHROPIC_API_KEY"):
         snippet = text or policies.text_for(merchant)
         data = extract_claude.summarize_policy(snippet)
         return {"merchant": merchant, "policy": data}
     else:
+        # Otherwise, serve deterministic structured data so the frontend still works.
         merchant_data = policies.DATA.get(merchant.lower())
-    
+
         if merchant_data:
-            # Return the actual data from policies.json
+            # Return actual seeded data for known merchants.
             return {
                 "merchant": merchant,
                 "policy": {
@@ -29,7 +31,7 @@ def policy(merchant: str, text: str | None = None):
                 }
             }
         else:
-            # Fallback for unknown merchants
+            # Fallback for totally unknown merchants so UI doesn't explode.
             return {
                 "merchant": merchant,
                 "policy": {
@@ -42,4 +44,3 @@ def policy(merchant: str, text: str | None = None):
                     "notes": "30-day returns (demo fallback)"
                 }
             }
-        

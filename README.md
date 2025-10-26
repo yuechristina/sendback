@@ -1,6 +1,6 @@
-# sendback — One‑Click Returns Wallet
+# Sendback - One‑Click Returns
 
-An end‑to‑end hackathon‑ready app: upload a receipt → see all orders with return countdowns → get one‑tap return options
+Upload any receipt and see all orders with return countdowns, get one‑tap return options
 (Return Bar, USPS Label Broker QR instructions, USPS carrier pickup) + a pre‑purchase policy checker.
 
 ## Monorepo structure
@@ -61,4 +61,3 @@ NEXT_PUBLIC_API_BASE=http://localhost:8000
 
 ## Deploying (later)
 - You can deploy the API to any Python host (Elastic serverless recommended) and the web to Vercel/Netlify.
-x
