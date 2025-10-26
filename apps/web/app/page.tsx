@@ -88,7 +88,7 @@ export default function Home() {
 
           {/* Title and Subtitle */}
           <div className="text-left mb-3">
-            <h1 className="text-3xl font-bold">sendback</h1>
+            <h1 className="text-3xl font-bold">sendyback</h1>
             <p className="text-muted-foreground text-sm">Track all your return windows</p>
           </div>
 

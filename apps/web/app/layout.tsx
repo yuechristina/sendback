@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import BackgroundMusic from "@/components/BackgroundMusic";
 
 export const metadata = {
-  title: "SendBack",
+  title: "SendyBack",
   description: "Returns Wallet Dashboard",
 };
 
