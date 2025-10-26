@@ -71,9 +71,9 @@ export function UploadReceipt({ onUploadComplete }: UploadReceiptProps) {
   }
 
   return (
-    <div className="space-y-6 p-5">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold">Add a Receipt</h2>
+    <div className="space-y-6 p-5 mt-15">
+      <div className="text-left space-y-2">
+        <h2 className="text-2xl font-semibold text-[#252dfa]">Add a Receipt</h2>
         <p className="text-muted-foreground text-sm">
           We'll extract the details and track your return window automatically.
         </p>
@@ -87,7 +87,7 @@ export function UploadReceipt({ onUploadComplete }: UploadReceiptProps) {
             onClick={() => handleUpload("photo")}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: "#c0c2fc" }}> 
                 📷
               </div>
               <div className="flex-1 text-left">
@@ -134,7 +134,7 @@ export function UploadReceipt({ onUploadComplete }: UploadReceiptProps) {
                 className="flex items-center gap-4 cursor-pointer hover:bg-accent p-2 rounded-lg transition"
                 onClick={() => uploadInputRef.current?.click()}
               >
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: "#c0c2fc" }}> 
                   📄
                 </div>
                 <div className="flex-1 text-left">
@@ -162,7 +162,7 @@ export function UploadReceipt({ onUploadComplete }: UploadReceiptProps) {
             onClick={() => handleUpload("email")}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={{ backgroundColor: "#c0c2fc" }}> 
                 ✉️
               </div>
               <div className="flex-1 text-left">
