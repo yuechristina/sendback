@@ -27,9 +27,9 @@ export default function BackgroundMusic() {
   return (
     <button
         onClick={toggle}
-        className="fixed top-6 left-6 z-[9999] bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-500 transition"
+        className="fixed top-6 left-6 z-[9999] text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-500 transition"
     >
-        {playing ? "⏸ Pause Music" : "▶️ Play Music"}
+        {playing ? "⏸" : "▶️"}
     </button>
     );
 }
