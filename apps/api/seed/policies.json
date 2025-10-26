@@ -7,7 +7,8 @@
     "mail_allowed": true,
     "restocking_fee_pct": 0,
     "return_bar_supported": true,
-    "requires_rma": false
+    "requires_rma": false,
+    "portal_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=G6E3B2E8QPHQ88KF"
   },
   {
     "merchant": "Target",
@@ -17,7 +18,8 @@
     "mail_allowed": true,
     "restocking_fee_pct": 0,
     "return_bar_supported": false,
-    "requires_rma": false
+    "requires_rma": false,
+    "portal_url": "https://www.target.com/help/article/000062920"
   },
   {
     "merchant": "Best Buy",
@@ -27,7 +29,8 @@
     "mail_allowed": true,
     "restocking_fee_pct": 15,
     "return_bar_supported": false,
-    "requires_rma": true
+    "requires_rma": true,
+    "portal_url": "https://www.bestbuy.com/site/help-topics/orders-returns-exchanges-policy/pcmcat316000050002.c?id=pcmcat316000050002"
   },
   {
     "merchant": "Nike",
@@ -37,7 +40,8 @@
     "mail_allowed": true,
     "restocking_fee_pct": 0,
     "return_bar_supported": false,
-    "requires_rma": false
+    "requires_rma": false,
+    "portal_url": "https://www.google.com/search?q=nike+returns&oq=nike+returns&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQABiPAtIBCDE0NDRqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8"
   },
   {
     "merchant": "Zara",
@@ -47,7 +51,8 @@
     "mail_allowed": true,
     "restocking_fee_pct": 0,
     "return_bar_supported": false,
-    "requires_rma": false
+    "requires_rma": false,
+    "portal_url": "https://www.zara.com/us/en/help-center/HowToReturn"
   },
   {
     "merchant": "Sephora",
@@ -57,6 +62,7 @@
     "mail_allowed": true,
     "restocking_fee_pct": 0,
     "return_bar_supported": true,
-    "requires_rma": false
+    "requires_rma": false,
+    "portal_url": "https://www.sephora.com/beauty/returns-exchanges"
   }
 ]

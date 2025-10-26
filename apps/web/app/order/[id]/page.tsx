@@ -1,91 +1,72 @@
-// app/order/[id]/page.tsx
 import { notFound } from "next/navigation";
+import OrderReturnFlow from "./return-flow";
 
-async function getOrder(id: string) {
-  const base = process.env.NEXT_PUBLIC_API_BASE;
-  if (!base) throw new Error("NEXT_PUBLIC_API_BASE is not set");
+async function getAll(id: string) {
+  const base = process.env.NEXT_PUBLIC_API_BASE!;
+  const safe = encodeURIComponent(id);
 
-  const safeId = encodeURIComponent(id);
-
-  // If options 422s (e.g., invalid id), we still render the order page.
-  const [oRes, optRes] = await Promise.all([
-    fetch(`${base}/order/${safeId}`, { cache: "no-store" }),
-    fetch(`${base}/order/${safeId}/options`, { cache: "no-store" }),
+  const [oRes, itemsRes, eligRes, optsRes] = await Promise.all([
+    fetch(`${base}/order/${safe}`, { cache: "no-store" }),
+    fetch(`${base}/order/${safe}/items`, { cache: "no-store" }),
+    fetch(`${base}/order/${safe}/eligibility`, { cache: "no-store" }),
+    fetch(`${base}/order/${safe}/options`, { cache: "no-store" }),
   ]);
 
   if (!oRes.ok) notFound();
 
   const order = await oRes.json();
 
-  let options: any[] = [];
-  if (optRes.ok) {
+  const items =
+    itemsRes.ok ? (await itemsRes.json()).items ?? [] : [];
+
+  let eligibility = { ok: false, reason: "Unknown" as string };
+  if (eligRes.ok) {
     try {
-      const j = await optRes.json();
-      options = Array.isArray(j?.options) ? j.options : [];
+      eligibility = (await eligRes.json()) ?? eligibility;
     } catch {
-      options = [];
+      /* keep default */
     }
+  } else {
+    // capture server error text (trim to keep it tidy)
+    const t = await eligRes.text().catch(() => "");
+    if (t) eligibility = { ok: false, reason: t.slice(0, 120) };
   }
 
-  return { order, options };
+  const options =
+    optsRes.ok ? (await optsRes.json()).options ?? [] : [];
+
+  return { order, items, eligibility, options };
 }
+
 
 export default async function OrderPage({
   params,
 }: {
-  // 👇 params is a Promise in current Next
   params: Promise<{ id?: string }>;
 }) {
-  const { id } = await params; // 👈 unwrap the Promise
+  const { id } = await params;
+  if (!id || id === "undefined") notFound();
 
-  if (!id || id === "undefined") {
-    notFound();
-  }
-
-  const { order, options } = await getOrder(id);
+  const { order, items, eligibility, options } = await getAll(id);
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-4">
-      <h1 className="text-xl font-semibold">
-        {order.merchant} — {order.order_id_text}
-      </h1>
-      <div className="text-zinc-600">
-        Return by <strong>{order.deadline_date}</strong>
-      </div>
+    <main className="max-w-3xl mx-auto p-6 space-y-6 min-h-dvh overflow-y-auto">
+      <header className="space-y-1">
+        <h1 className="text-xl font-semibold">
+          {order.merchant} — {order.order_id_text}
+        </h1>
+        <div className="text-zinc-600">
+          Return by <strong>{order.deadline_date}</strong>
+        </div>
+      </header>
 
-      <div className="grid gap-3">
-        {options.length === 0 ? (
-          <div className="text-sm text-zinc-500">
-            No return options available for this merchant.
-          </div>
-        ) : (
-          options.map((op: any) => (
-            <form
-              key={op.id}
-              action={`/api/action/${op.id}`}
-              method="post"
-              className="p-4 border rounded-2xl"
-            >
-              <div className="font-medium">{op.label}</div>
-              <input type="hidden" name="order_id" value={order.id} />
-              <button className="mt-2 px-3 py-1.5 rounded bg-black text-white">
-                {op.cta}
-              </button>
-            </form>
-          ))
-        )}
-      </div>
-
-      <section className="p-4 border rounded-2xl">
-        <h2 className="font-medium mb-2">What to bring</h2>
-        <ul className="list-disc ml-5 text-sm">
-          <li>Return QR / label (if provided)</li>
-          <li>Order email or ID</li>
-          <li>Original packaging if required</li>
-          <li>Valid ID (some stores)</li>
-          <li>Items clean &amp; unworn</li>
-        </ul>
-      </section>
+      <OrderReturnFlow
+        orderId={order.id}
+        eligibility={eligibility}
+        items={items}
+        options={options}
+        apiBase={process.env.NEXT_PUBLIC_API_BASE!}
+      />
     </main>
   );
 }
