@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import OrderReturnFlow from "./return-flow";
+import AddToCalendar from "./add-to-calendar";
 
 async function getAll(id: string) {
   const base = process.env.NEXT_PUBLIC_API_BASE!;
@@ -15,29 +15,12 @@ async function getAll(id: string) {
   if (!oRes.ok) notFound();
 
   const order = await oRes.json();
-
-  const items =
-    itemsRes.ok ? (await itemsRes.json()).items ?? [] : [];
-
-  let eligibility = { ok: false, reason: "Unknown" as string };
-  if (eligRes.ok) {
-    try {
-      eligibility = (await eligRes.json()) ?? eligibility;
-    } catch {
-      /* keep default */
-    }
-  } else {
-    // capture server error text (trim to keep it tidy)
-    const t = await eligRes.text().catch(() => "");
-    if (t) eligibility = { ok: false, reason: t.slice(0, 120) };
-  }
-
-  const options =
-    optsRes.ok ? (await optsRes.json()).options ?? [] : [];
+  const items = itemsRes.ok ? (await itemsRes.json()).items ?? [] : [];
+  const eligibility = eligRes.ok ? await eligRes.json() : { ok: false };
+  const options = optsRes.ok ? (await optsRes.json()).options ?? [] : [];
 
   return { order, items, eligibility, options };
 }
-
 
 export default async function OrderPage({
   params,
@@ -47,17 +30,23 @@ export default async function OrderPage({
   const { id } = await params;
   if (!id || id === "undefined") notFound();
 
-  const { order, items, eligibility, options } = await getAll(id);
+  const { order, options } = await getAll(id);
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-4 mt-15">
-      <h1 className="text-xl font-semibold  text-[#252dfa]">
+      {/* ===== Header ===== */}
+      <h1 className="text-xl font-semibold text-[#252dfa]">
         {order.merchant} — {order.order_id_text}
       </h1>
+
       <div className="text-zinc-600">
         Return by <strong>{order.deadline_date}</strong>
       </div>
 
+      {/* ===== Add to Calendar ===== */}
+      <AddToCalendar orderId={order.id} />
+
+      {/* ===== Return Options ===== */}
       <div className="grid gap-3">
         {options.length === 0 ? (
           <div className="text-sm text-zinc-500">
@@ -69,8 +58,8 @@ export default async function OrderPage({
               key={op.id}
               action={`/api/action/${op.id}`}
               method="post"
-              className="rounded-2xl border border-border bg-card text-card-foreground p-4 shadow-sm cursor-pointer hover:shadow transition">
-
+              className="rounded-2xl border border-border bg-card text-card-foreground p-4 shadow-sm cursor-pointer hover:shadow transition"
+            >
               <div className="font-medium">{op.label}</div>
               <input type="hidden" name="order_id" value={order.id} />
               <button
@@ -89,9 +78,10 @@ export default async function OrderPage({
         )}
       </div>
 
+      {/* ===== What to Bring ===== */}
       <section className="rounded-2xl border border-border bg-card text-card-foreground p-4 shadow-sm cursor-pointer hover:shadow transition">
-        <h2 className="font-medium mb-2">What to bring</h2>
-        <ul className="list-disc ml-5 text-sm">
+        <h2 className="font-medium mb-2 text-[#252dfa]">What to bring</h2>
+        <ul className="list-disc ml-5 text-sm text-muted-foreground space-y-1">
           <li>Return QR / label (if provided)</li>
           <li>Order email or ID</li>
           <li>Original packaging if required</li>
