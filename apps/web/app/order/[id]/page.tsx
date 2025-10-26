@@ -1,18 +1,19 @@
+// app/order/[id]/page.tsx
 import { notFound } from "next/navigation";
 
 async function getOrder(id: string) {
   const base = process.env.NEXT_PUBLIC_API_BASE;
   if (!base) throw new Error("NEXT_PUBLIC_API_BASE is not set");
 
+  const safeId = encodeURIComponent(id);
+
+  // If options 422s (e.g., invalid id), we still render the order page.
   const [oRes, optRes] = await Promise.all([
-    fetch(`${base}/order/${id}`, { cache: "no-store" }),
-    fetch(`${base}/order/${id}/options`, { cache: "no-store" }),
+    fetch(`${base}/order/${safeId}`, { cache: "no-store" }),
+    fetch(`${base}/order/${safeId}/options`, { cache: "no-store" }),
   ]);
 
-  if (!oRes.ok) {
-    // If the order itself isn't found/ok, 404 the page
-    notFound();
-  }
+  if (!oRes.ok) notFound();
 
   const order = await oRes.json();
 
@@ -24,7 +25,7 @@ async function getOrder(id: string) {
     } catch {
       options = [];
     }
-  } // if options call fails (422/500), just show no options
+  }
 
   return { order, options };
 }
@@ -32,11 +33,12 @@ async function getOrder(id: string) {
 export default async function OrderPage({
   params,
 }: {
-  params: { id?: string };
+  // 👇 params is a Promise in current Next
+  params: Promise<{ id?: string }>;
 }) {
-  const id = params?.id;
+  const { id } = await params; // 👈 unwrap the Promise
+
   if (!id || id === "undefined") {
-    // Guard against bad params (prefetch/edge dev quirks)
     notFound();
   }
 
