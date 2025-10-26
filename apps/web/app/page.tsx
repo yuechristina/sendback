@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -16,7 +16,32 @@ export default function Home() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data on mount (client-side)
+  // ✅ put useRef INSIDE the component
+  const uploadFormRef = useRef<HTMLFormElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
+
+  // ✅ and the upload handler inside too
+  const handleSubmit = async (form: HTMLFormElement) => {
+    const fileInput = form.querySelector("input[name='file']") as HTMLInputElement;
+    if (!fileInput?.files?.length) return;
+
+    const fd = new FormData();
+    fd.set("file", fileInput.files[0]);
+
+    try {
+      const api = process.env.NEXT_PUBLIC_API_BASE!;
+      const res = await fetch(`${api}/ingest/receipt`, { method: "POST", body: fd });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      console.log("✅ Upload successful:", data);
+    } catch (err) {
+      console.error("❌ Upload failed:", err);
+    }
+  };
+
+  // Fetch data on mount
   useEffect(() => {
     fetchOrders().then((data) => {
       setOrders(data.orders || []);
@@ -48,26 +73,23 @@ export default function Home() {
       <div className="w-full max-w-md h-screen bg-card text-card-foreground rounded-t-3xl border border-border shadow-sm flex flex-col overflow-hidden">
         {/* ===== Header ===== */}
         <header className="sticky top-0 bg-card border-b border-border z-10 px-5 pt-5 pb-3 rounded-t-3xl">
-          <div className="flex justify-between items-center mb-3">
-            <div>
-              <h1 className="text-xl font-semibold">sendback</h1>
-              <p className="text-muted-foreground text-sm">
-                Track all your return windows
-              </p>
-            </div>
-            <div className="flex gap-2 items-center">
-              <button className="relative p-2 hover:bg-accent rounded-lg transition-colors">
-                <span className="text-lg">🔔</span>
-                {expiringCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {expiringCount}
-                  </span>
-                )}
-              </button>
-              <button className="p-2 hover:bg-accent rounded-lg transition-colors text-lg">
-                👤
-              </button>
-            </div>
+          {/* Icons Row */}
+          <div className="flex justify-end items-center gap-2 mb-2">
+            <button className="relative p-2 hover:bg-accent rounded-lg transition-colors">
+              <span className="text-lg">🔔</span>
+              {expiringCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {expiringCount}
+                </span>
+              )}
+            </button>
+            <button className="p-2 hover:bg-accent rounded-lg transition-colors text-lg">👤</button>
+          </div>
+
+          {/* Title and Subtitle */}
+          <div className="text-left mb-3">
+            <h1 className="text-3xl font-bold">sendback</h1>
+            <p className="text-muted-foreground text-sm">Track all your return windows</p>
           </div>
 
           {/* Search bar */}
@@ -149,27 +171,40 @@ export default function Home() {
             </div>
           )}
 
-          {/* Upload Section */}
-          <div className="mt-5 border-t border-border p-5">
-            <label className="block font-medium mb-2">
-              Upload a receipt (png/jpg/pdf/txt)
-            </label>
+          {/* --- Upload File --- */}
+          <div className="mt-5 bg-card border border-border rounded-xl p-4 transition-colors">
             <form
-              action="/api/upload"
-              method="post"
+              ref={uploadFormRef}
               encType="multipart/form-data"
-              className="space-y-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(uploadFormRef.current!);
+              }}
+              className="space-y-2"
             >
+              <div
+                className="flex items-center gap-4 cursor-pointer hover:bg-accent p-2 rounded-lg transition"
+                onClick={() => uploadInputRef.current?.click()}
+              >
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl">
+                  📄
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-medium">Upload File</div>
+                  <div className="text-sm text-muted-foreground">
+                    PDF, JPG, PNG, or TXT
+                  </div>
+                </div>
+              </div>
+
               <input
+                ref={uploadInputRef}
                 name="file"
                 type="file"
                 accept=".png,.jpg,.jpeg,.pdf,.txt"
-                className="block w-full text-sm"
-                required
+                className="hidden"
+                onChange={() => uploadFormRef.current?.requestSubmit()}
               />
-              <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors">
-                Ingest
-              </button>
             </form>
           </div>
 
@@ -191,9 +226,6 @@ export default function Home() {
         >
           +
         </button>
-
-        {/* NOTE: Navbar (bottom nav / music etc.) lives in layout.tsx now, so
-           we are intentionally NOT rendering a broken <footer> placeholder here. */}
       </div>
     </main>
   );
