@@ -61,3 +61,4 @@ NEXT_PUBLIC_API_BASE=http://localhost:8000
 
 ## Deploying (later)
 - You can deploy the API to any Python host (Elastic serverless recommended) and the web to Vercel/Netlify.
+x

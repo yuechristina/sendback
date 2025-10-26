@@ -2,6 +2,8 @@
 __pycache__/
 *.py[codz]
 *$py.class
+apps/api/.venv/
+*.pyc
 
 # C extensions
 *.so
@@ -205,3 +207,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#db
+sendback.db
+
+# Node / Next.js
+apps/web/node_modules/
+apps/web/.next/
+apps/web/.env.local
