@@ -1,8 +1,9 @@
-# Dependency folders
+# Dependencies and builds
 node_modules/
 .next/
 dist/
 build/
+out/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
