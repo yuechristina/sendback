@@ -10,7 +10,7 @@ export default function Navbar() {
     { href: "/", icon: "🏠", label: "Home" },
     { href: "/upload", icon: "📩", label: "Upload" },
     { href: "/policy", icon: "🔍", label: "Policy" },
-    { href: "/profile", icon: "👤", label: "Profile" },
+
   ];
 
   return (
