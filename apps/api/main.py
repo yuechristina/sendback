@@ -21,3 +21,11 @@ app.include_router(orders.router)
 @app.get("/health")
 def health():
     return {"ok": True}
+
+@app.get("/")
+async def list_routes():
+    routes = []
+    for route in app.routes:
+        if hasattr(route, "path"):
+            routes.append({"path": route.path, "methods": route.methods})
+    return {"routes": routes}

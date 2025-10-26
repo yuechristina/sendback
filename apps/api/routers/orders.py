@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Response
 from sqlalchemy.orm import Session
 from ..db import SessionLocal, engine
 from ..models import Order, LineItem
 from ..seed import policies
-import datetime
+from datetime import datetime, timedelta
+from ..db import get_db
+from ..models import Order
 
 router = APIRouter()
 from ..db import Base
@@ -166,3 +168,75 @@ def get_order(order_id: int):
 #     opts.append({"id":"usps_pickup","label":"USPS Carrier Pickup","cta":"Schedule pickup"})
 #     opts.append({"id":"merchant_portal","label":"Open store return portal","cta":"Open"})
 #     return {"order_id": order_id, "options": opts}
+
+
+def generate_return_reminder(order):
+    # Convert string date to datetime object
+    if isinstance(order.deadline_date, str):
+        return_by = datetime.strptime(order.deadline_date, '%Y-%m-%d').date()
+    else:
+        return_by = order.deadline_date
+    
+    # Format dates for ICS (YYYYMMDD format)
+    start_date = return_by.strftime('%Y%m%d')
+    end_date = (return_by + timedelta(days=1)).strftime('%Y%m%d')
+    
+    ics_content = f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Your App//Return Reminder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{order.id}@yourapp.com
+DTSTAMP:{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
+DTSTART;VALUE=DATE:{start_date}
+DTEND;VALUE=DATE:{end_date}
+SUMMARY:Return Deadline - {order.merchant}
+DESCRIPTION:Return items from {order.merchant} by this date. Order ID: {order.id}
+LOCATION:{order.merchant}
+STATUS:CONFIRMED
+BEGIN:VALARM
+TRIGGER:-P7D
+DESCRIPTION:Return reminder: 7 days left
+ACTION:DISPLAY
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-P3D
+DESCRIPTION:Return reminder: 3 days left
+ACTION:DISPLAY
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-P1D
+DESCRIPTION:Return reminder: 1 day left
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+END:VCALENDAR"""
+    
+    return ics_content
+
+
+@router.get("/order/{order_id}/calendar")
+async def download_calendar(order_id: int, db: Session = Depends(get_db)):
+    """Generate and download a calendar reminder for return deadline"""
+    print(f"📅 Calendar endpoint hit for order {order_id}")
+    
+    order = db.query(Order).filter(Order.id == order_id).first()
+    
+    if not order:
+        print(f"❌ Order {order_id} not found")
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    if not hasattr(order, 'deadline_date') or order.deadline_date is None:
+        raise HTTPException(status_code=400, detail="Order has no return deadline")
+    
+    print(f"✅ Generating calendar for order {order_id}")
+    ics_content = generate_return_reminder(order)
+    
+    return Response(
+        content=ics_content,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": f"attachment; filename=return-reminder-{order_id}.ics"
+        }
+    )
